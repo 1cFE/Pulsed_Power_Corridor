@@ -66,6 +66,27 @@ The patch lives in the [Magnetic_DT_Corridor](https://github.com/1cFE/Magnetic_D
 repository; its laser-IFE driver terms — KrF `$/J` raised to a published NOAK figure, and
 a gas-laser rep-rate BoP penalty — are the parts that matter here.
 
+### A note on the pin
+
+The commit above is pinned deliberately. `master` has moved on, but the drift for this
+corridor is small and not in the direction you might expect from the mature corridor:
+
+| Concept | pinned `4c7f0df` | `master` at `44434d9` | |
+|---|---|---|---|
+| LASER_IFE | $122.79/MWh | $124.61/MWh | +1.5% |
+| MAGLIF | *not sizeable* | $333.77/MWh | — |
+| TOKAMAK (for reference) | $111.15/MWh | $108.87/MWh | -2.1% |
+
+The large recent change on `master` -- ICRF repriced from $4.38/MW to $1.00/MW, LHCD from
+$4.23 to $1.00 -- moves the **tokamak** baseline and barely touches laser IFE, which
+carries no ICRF or NBI: its heating is the driver. Between `6276a84` and `master` the
+LASER_IFE number moves only 0.08%. `size_from_power` did not support MAGLIF at `4c7f0df`,
+so that row has no pinned value; between `6276a84` and `master` it moves +0.9%.
+
+Nothing in this repository depends on which commit you use -- the committed datasets are
+the ones the published figures were drawn from. The pin matters only if you re-derive the
+cost points yourself.
+
 ## What each file does
 
 | File | Role |

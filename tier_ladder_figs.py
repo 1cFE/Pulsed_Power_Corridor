@@ -141,7 +141,7 @@ ladder(
      f"half-step driver + targets",
      f"3% WACC {DOT} 0.98 avail {DOT} 2.5 yr build\n"
      f"8.3% eff. indirect {DOT} optics {TIMES}3\n"
-     f"targets {MINUS}90%/{MINUS}50% {DOT} 10 FTE"],
+     f"targets {MINUS}90%/{MINUS}50%"],
     cents=True,
 )
 

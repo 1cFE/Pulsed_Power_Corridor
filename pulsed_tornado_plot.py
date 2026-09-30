@@ -53,7 +53,7 @@ def rows_for(c):
         ("Book life  30 $\\rightarrow$ 80 yr",           delta(c, life=80.0)),
         ("Construction  5 $\\rightarrow$ 2.5 yr",        delta(c, constr=2.5)),
         ("Availability  0.85 $\\rightarrow$ 0.98",       delta(c, av=0.98)),
-        ("Fixed O&M  $\\rightarrow$ lights-out",         delta(c, om=0.0855)),
+        ("Fixed O&M  $-$55%",                             delta(c, om=0.45)),
         ("Brownfield siting",                            delta(c, bld=0.65, elec=0.40, hr=0.60)),
         ("Power cycle  $\\rightarrow$ sCO$_2$ Brayton",  delta(c, sco2=True)),
         ("Driver capital",                               delta(c, drv=C.PT3["drv"])),

@@ -18,12 +18,12 @@ KrF/hybrid concept in the consumable.
 | 0 · design baseline | $115.4 | $125.5 |
 | 1 · applicable record | $99.2 | $106.3 |
 | 2 · extrapolation with a known mechanism | $47.6 | $53.1 |
-| 3 · speculation, no mechanism | **$21.7** | **$27.4** |
+| 3 · speculation, no mechanism | **$24.2** | **$30.1** |
 
 All figures $/MWh. Neither configuration reaches the 1 ¢/kWh ($10/MWh) target, and both
 clear $20/MWh only on full speculation.
 
-One convention was brought to the published article on 30 September 2026. The nominal indirect-cost fraction is held at the NETL 20% on every rung and only the build time moves what is charged (CAS30 = fraction × CAS20 × build / 6 yr, so 20 / 16.7 / 10.8 / 8.3% effective at 6 / 5 / 3.25 / 2.5 years), the convention the aneutronic studies use; the earlier 20 / 16 / 12 / 8% ladder charged the schedule twice. The design basis is costed at the current wall-plug efficiencies, 20% fiber and 7% KrF (`eta_source` defaults), and the ladder lifts them to the published ceilings, 25% and 10%, at the speculation tier. Tier 3 already priced lights-out operation (fixed O&M × 0.0855) here; the mature corridor now does the same.
+One convention was brought to the published article on 30 September 2026. The nominal indirect-cost fraction is held at the NETL 20% on every rung and only the build time moves what is charged (CAS30 = fraction × CAS20 × build / 6 yr, so 20 / 16.7 / 10.8 / 8.3% effective at 6 / 5 / 3.25 / 2.5 years), the convention the aneutronic studies use; the earlier 20 / 16 / 12 / 8% ladder charged the schedule twice. The design basis is costed at the current wall-plug efficiencies, 20% fiber and 7% KrF (`eta_source` defaults), and the ladder lifts them to the published ceilings, 25% and 10%, at the speculation tier. Tier 3 had priced lights-out operation (fixed O&M × 0.0855) here alone; it now holds the tier-2 −55% like the other two D-T ladders, which moves the floor from 21.7 / 27.4 to 24.2 / 30.1 $/MWh (2.4 / 3.0 ¢/kWh).
 
 ## Reproducing
 
@@ -49,7 +49,7 @@ rung                    fiber/direct    KrF/hybrid
 0: design baseline             115.4         125.5
 1: records                      99.2         106.3
 2: extrapolations               47.6          53.1
-3: speculation                  21.7          27.4
+3: speculation                  24.2          30.1
 ```
 
 To re-derive the underlying cost points rather than use the committed datasets, you need

@@ -53,7 +53,6 @@ def rows_for(c):
         ("Book life  30 $\\rightarrow$ 80 yr",           delta(c, life=80.0)),
         ("Construction  5 $\\rightarrow$ 2.5 yr",        delta(c, constr=2.5)),
         ("Availability  0.85 $\\rightarrow$ 0.98",       delta(c, av=0.98)),
-        ("Indirect cost  20% $\\rightarrow$ 8%",         delta(c, indir=0.08)),
         ("Fixed O&M  $\\rightarrow$ lights-out",         delta(c, om=0.0855)),
         ("Brownfield siting",                            delta(c, bld=0.65, elec=0.40, hr=0.60)),
         ("Power cycle  $\\rightarrow$ sCO$_2$ Brayton",  delta(c, sco2=True)),
@@ -66,7 +65,12 @@ def rows_for(c):
     ]
 
 
-data = {c: rows_for(c) for c, _, _ in CONCEPTS}
+# The corridor model works in $/MWh; this dispatch reports ¢/kWh, so every
+# delta and baseline is converted once here at the plotting boundary.
+# 1 ¢/kWh == $10/MWh.
+CENTS = 0.1
+
+data = {c: [(lab, v * CENTS) for lab, v in rows_for(c)] for c, _, _ in CONCEPTS}
 labels = [r[0] for r in data["BLF"]]
 order = sorted(range(len(labels)),
                key=lambda i: max(data[c][i][1] for c, _, _ in CONCEPTS))
@@ -86,14 +90,14 @@ for k, (c, lab, col) in enumerate(CONCEPTS):
             color=col, edgecolor="white", linewidth=0.6, zorder=3)
     span = max(max(v for _, v in data[cc]) for cc, _, _ in CONCEPTS)
     for i, v in enumerate(vals):
-        ax.text(v + span * 0.012, i + off, f"{v:.1f}", va="center", ha="left",
+        ax.text(v + span * 0.012, i + off, f"{v:.2f}", va="center", ha="left",
                 fontsize=8.6, color=INK)
 
 ax.set_yticks(range(len(labels)))
 ax.set_yticklabels(labels, fontsize=9.8, color=INK)
 span = max(max(v for _, v in data[c]) for c, _, _ in CONCEPTS)
 ax.set_xlim(0, span * 1.11)
-ax.set_xlabel("reduction in LCOE  [\\$/MWh]", fontsize=10.8, color=INK, fontweight="600")
+ax.set_xlabel("reduction in LCOE  [¢/kWh]", fontsize=10.8, color=INK, fontweight="600")
 ax.grid(axis="x", color=RULE, alpha=.35, zorder=0)
 ax.set_axisbelow(True)
 for s in ("top", "right", "left"):
@@ -109,16 +113,18 @@ for t in leg.get_texts():
 fig.text(0.02, 0.972, "What moves the cost of a 1 GWe pulsed plant",
          fontsize=14.5, color=INK, ha="left", va="top", fontweight="600")
 fig.text(0.02, 0.936,
-         f"baseline \\${base('BLF'):.0f} fiber / \\${base('Xcimer'):.0f} KrF per MWh  ·  "
+         f"baseline {base('BLF') * CENTS:.1f}¢ fiber / "
+         f"{base('Xcimer') * CENTS:.1f}¢ KrF per kWh  ·  "
          "each cost-down lever applied alone, at its deepest evidence tier",
          fontsize=10, color=MUTED, ha="left", va="top")
 
 fig.savefig("figures/pulsed_tornado.png", dpi=155, facecolor=SURFACE)
 print(f"wrote figures/pulsed_tornado.png")
-print(f"  baseline  fiber ${base('BLF'):.2f}   KrF ${base('Xcimer'):.2f}\n")
-print(f"  {'lever':<40}{'fiber':>9}{'KrF':>9}")
+print(f"  baseline  fiber {base('BLF') * CENTS:.3f} c/kWh"
+      f"   KrF {base('Xcimer') * CENTS:.3f} c/kWh\n")
+print(f"  {'lever  [c/kWh reduction]':<40}{'fiber':>9}{'KrF':>9}")
 for i in reversed(order):
     lab = data['BLF'][i][0]
     clean = (lab.replace("$_2$", "2").replace("$\\rightarrow$", "->")
                 .replace("$\\times$", "x").replace("$-$", "-"))
-    print(f"  {clean:<40}{data['BLF'][i][1]:>9.1f}{data['Xcimer'][i][1]:>9.1f}")
+    print(f"  {clean:<40}{data['BLF'][i][1]:>9.2f}{data['Xcimer'][i][1]:>9.2f}")

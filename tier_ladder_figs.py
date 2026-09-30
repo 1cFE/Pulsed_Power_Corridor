@@ -16,6 +16,9 @@ Tier vocabulary follows the approved cost-down lever table:
 Reads corridor_tiers.json.  Writes:
   mature_tier_ladder.png / pulsed_tier_ladder.png / revenue_tier_ladder.png
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _os.environ.get("COSTINGFE_SRC", "1costingfe/src"))
 import sys, types
 sys.modules.setdefault("plistlib", types.ModuleType("plistlib"))
 
@@ -37,7 +40,23 @@ TIERS = ["0: design basis", "1: applicable record",
 DOT, MINUS, SUB2, TIMES = "·", "−", "₂", "×"
 
 
-def ladder(fname, title, sub, s1_label, s1, s2_label, s2, notes, ymax=None):
+def ladder(fname, title, sub, s1_label, s1, s2_label, s2, notes, ymax=None,
+           cents=False):
+    """cents=True plots in ¢/kWh instead of $/MWh (1 ¢/kWh == $10/MWh).
+
+    The corridor model works in $/MWh throughout, so the conversion happens
+    here at the plotting boundary only -- corridor_tiers.json stays canonical
+    and the other two corridors keep their $/MWh axis untouched.
+    """
+    scale = 0.1 if cents else 1.0
+    s1 = [v * scale for v in s1]
+    s2 = [v * scale for v in s2]
+    target = TARGET * scale
+    ylabel = "LCOE  [¢/kWh]" if cents else "LCOE  [$/MWh]"
+    # ~1-13 ¢/kWh needs a second decimal to keep the tiers distinguishable
+    vfmt = ",.2f" if cents else ",.1f"
+    tlabel = "1 ¢/kWh" if cents else "1 ¢/kWh\n($10/MWh)"
+
     fig, ax = plt.subplots(figsize=(13.2, 6.0))
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
@@ -54,14 +73,14 @@ def ladder(fname, title, sub, s1_label, s1, s2_label, s2, notes, ymax=None):
             off = hi * 0.015
             ax.text(bar.get_x() + bar.get_width() / 2,
                     v + off if v >= 0 else v - off * 2.4,
-                    f"{v:,.1f}", ha="center",
+                    format(v, vfmt), ha="center",
                     va="bottom" if v >= 0 else "top",
                     fontsize=11.5, color=INK, fontweight="600", zorder=4)
 
     # target line, with a left gutter opened up so its label never sits on a bar
     ax.set_xlim(-0.92, len(TIERS) - 0.5)
-    ax.axhline(TARGET, ls="--", lw=1.1, color="#b8891f", zorder=2)
-    ax.text(-0.88, TARGET + hi * 0.014, "1 ¢/kWh\n($10/MWh)", fontsize=10,
+    ax.axhline(target, ls="--", lw=1.1, color="#b8891f", zorder=2)
+    ax.text(-0.88, target + hi * 0.014, tlabel, fontsize=10,
             color="#b8891f", ha="left", va="bottom", zorder=5, linespacing=1.35)
     if lo < 0:
         ax.axhline(0, lw=0.9, color=RULE, zorder=2)
@@ -75,7 +94,7 @@ def ladder(fname, title, sub, s1_label, s1, s2_label, s2, notes, ymax=None):
         ax.text(i, -0.125, n, transform=tr, ha="center", va="top",
                 fontsize=9.6, color=MUTED, linespacing=1.6)
 
-    ax.set_ylabel("LCOE  [$/MWh]", fontsize=12.5, color=INK, fontweight="600")
+    ax.set_ylabel(ylabel, fontsize=12.5, color=INK, fontweight="600")
     ax.set_ylim(lo * 1.35 if lo < 0 else 0, hi)
     ax.set_title(title, fontsize=16, color=INK, fontweight="600", loc="left", pad=20)
     ax.text(0, 1.018, sub, transform=ax.transAxes, fontsize=11.5, color=MUTED,
@@ -102,12 +121,10 @@ def ladder(fname, title, sub, s1_label, s1, s2_label, s2, notes, ymax=None):
 # Tier 1 carries no cost-of-capital record, so the 7% design basis is held there.
 NOTE_T1 = (f"no WACC record (7% held)\n"
            f"0.92 avail {DOT} 60 yr life {DOT} 5 yr build\n"
-           f"16% indirect {DOT} O&M {MINUS}31%")
+           f"16.7% eff. indirect {DOT} O&M {MINUS}31%")
 
-# Trimmed for this repository: the shared engine in corridor_tiers.py also
-# draws the mature and alternate-revenue ladders, which live in their own
-# repos.  The revenue ladder there is the superseded two-series version.
-
+# Trimmed for this repository: the shared engine also draws the other
+# corridors' ladders, which live in their own repositories.
 # --------------------------------------------------------------- pulsed power
 P = D["pulsed"]
 ladder(
@@ -120,9 +137,11 @@ ladder(
     ["as-designed drivers,\ncommercial economics",
      NOTE_T1,
      f"5% WACC {DOT} 0.95 avail {DOT} 80 yr life\n"
-     f"3.25 yr build {DOT} sCO{SUB2} {DOT} 12% indirect\n"
+     f"3.25 yr build {DOT} sCO{SUB2} {DOT} 10.8% eff. indirect\n"
      f"half-step driver + targets",
      f"3% WACC {DOT} 0.98 avail {DOT} 2.5 yr build\n"
-     f"8% indirect {DOT} optics {TIMES}3\n"
+     f"8.3% eff. indirect {DOT} optics {TIMES}3\n"
      f"targets {MINUS}90%/{MINUS}50% {DOT} 10 FTE"],
+    cents=True,
 )
+

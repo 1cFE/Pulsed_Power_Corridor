@@ -7,6 +7,9 @@ Reproduces the reduced-CAS model of mature_corridor_report.py, with two changes:
   * first-wall life is charged on PEAK wall load (q_n_peak), not the plant
     average, so CAS72 is no longer over-credited by the peaking factor.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _os.environ.get("COSTINGFE_SRC", "1costingfe/src"))
 import json, math
 
 D = json.load(open("ct_corridor_data.json"))
